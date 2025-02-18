@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Union
 from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 
-from autogluon.assistant.llm import AssistantChatBedrock, AssistantChatOpenAI, LLMFactory
+from autogluon.assistant.llm import AssistantAzureChatOpenAI, AssistantChatBedrock, AssistantChatOpenAI, LLMFactory
 
 from .predictor import AutogluonTabularPredictor
 from .task import TabularPredictionTask
@@ -55,7 +55,9 @@ class TabularPredictionAssistant:
 
     def __init__(self, config: DictConfig) -> None:
         self.config = config
-        self.llm: Union[AssistantChatOpenAI, AssistantChatBedrock] = LLMFactory.get_chat_model(config.llm)
+        self.llm: Union[AssistantChatOpenAI, AssistantAzureChatOpenAI, AssistantChatBedrock] = (
+            LLMFactory.get_chat_model(config.llm)
+        )
         self.predictor = AutogluonTabularPredictor(config.autogluon)
         self.feature_transformers_config = get_feature_transformers_config(config)
 
