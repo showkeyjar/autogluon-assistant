@@ -28,13 +28,21 @@ autogluon:
   predictor_fit_kwargs:
     presets: best_quality
 llm:
-  # Note: bedrock is only supported in limited AWS regions
-  #       and requires AWS credentials
-  provider: bedrock
-  model: "anthropic.claude-3-5-sonnet-20241022-v2:0"
+  # 支持: bedrock, openai, azure, deepseek, ollama
+  # provider: bedrock
+  # model: "anthropic.claude-3-5-sonnet-20241022-v2:0"
   # provider: openai
   # model: gpt-4o-2024-08-06
+  provider: deepseek
+  model: deepseek-chat
+  api_url: https://api.deepseek.com/v1/chat/completions
+  api_key: "sk-27b70027e52345f896856a8830cfb09b"
+  # provider: ollama
+  # model: llama3
+  # api_url: http://localhost:11434/api/chat
+  # provider: bedrock
+  # model: "anthropic.claude-3-5-sonnet-20241022-v2:0"
   max_tokens: 512
   proxy_url: null
-  temperature: 0
+  temperature: 0.7
   verbose: True

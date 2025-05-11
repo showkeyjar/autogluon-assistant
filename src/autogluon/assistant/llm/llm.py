@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from autogluon.assistant.constants import WHITE_LIST_LLM
+from autogluon.assistant.llm.deepseek_ollama import AssistantChatDeepSeek, AssistantChatOllama
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +188,7 @@ class LLMFactory:
 
     @classmethod
     def get_valid_providers(cls):
-        return ["azure", "openai", "bedrock"]
+        return ["azure", "openai", "bedrock", "deepseek", "ollama"]
 
     @staticmethod
     def _get_azure_chat_model(
@@ -249,9 +250,30 @@ class LLMFactory:
     @classmethod
     def get_chat_model(
         cls, config: DictConfig
-    ) -> Union[AssistantChatOpenAI, AssistantAzureChatOpenAI, AssistantChatBedrock]:
+    ):
         valid_providers = cls.get_valid_providers()
         assert config.provider in valid_providers, f"{config.provider} is not a valid provider in: {valid_providers}"
+
+        # deepseek/ollama 不做模型有效性校验，直接适配
+        if config.provider == "deepseek":
+            logger.info(f"AGA is using model {config.model} from DeepSeek remote API {config.api_url}.")
+            return AssistantChatDeepSeek(
+                api_url=config.api_url,
+                api_key=getattr(config, "api_key", None),
+                model_name=config.model,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                verbose=config.verbose,
+            )
+        elif config.provider == "ollama":
+            logger.info(f"AGA is using model {config.model} from Ollama remote API {config.api_url}.")
+            return AssistantChatOllama(
+                api_url=config.api_url,
+                model_name=config.model,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                verbose=config.verbose,
+            )
 
         valid_models = cls.get_valid_models(config.provider)
         assert (
